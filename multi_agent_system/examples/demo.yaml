@@ -1,0 +1,44 @@
+# agents:
+#   - id: researcher
+#     role: Analyst
+#     goal: Search for information about Python (programming language)
+#     tools: [python, save_memory]
+#     # Llama 3.2 is smart, but keeping instructions simple ensures success
+#     instructions: "Find out when Python was released. Save the year to memory as 'python_year'."
+
+#   - id: writer
+#     role: Tech Writer
+#     goal: Write a short summary
+#     # This agent depends on the memory saved by the first agent
+#     instructions: "Read 'python_year' from memory. Write a short, fun tweet about how old Python is."
+#     tools: [read_memory]
+
+# workflow:
+#   type: sequential
+#   steps:
+#     - agent: researcher
+#     - agent: writer
+
+
+
+
+agents:
+  - id: researcher
+    role: Analyst
+    goal: Extract information from files
+    tools: [file_read, save_memory]
+    # SPECIFIC INSTRUCTION: Tell it exactly which file to read
+    instructions: "Read the file 'python_info.txt'. Extract the release year and save it to memory with the key 'release_year'."
+
+  - id: writer
+    role: Tech Writer
+    goal: Write a summary
+    tools: [read_memory] # This tool is actually 'recall_everything' in your code
+    # SPECIFIC INSTRUCTION: Tell it to use the data from the previous agent
+    instructions: "Read 'release_year' from memory. Write a tweet saying 'Python was born in [year]!'"
+
+workflow:
+  type: sequential
+  steps:
+    - agent: researcher
+    - agent: writer

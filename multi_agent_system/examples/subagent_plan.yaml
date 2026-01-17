@@ -1,0 +1,19 @@
+agents:
+  - id: manager
+    role: Project Lead
+    goal: Create a coding curriculum
+    instructions: "Create a strictly numbered 3-step plan to learn Python for a 10-year-old. Keep it simple."
+    tools: []
+
+  - id: worker
+    role: Content Creator
+    goal: Expand on the plan
+    # The worker takes the Manager's output as input
+    instructions: "Take the 3-step plan provided. For EACH step, write a 1-sentence fun explanation."
+    tools: []
+
+workflow:
+  type: sequential
+  steps:
+    - agent: manager
+    - agent: worker

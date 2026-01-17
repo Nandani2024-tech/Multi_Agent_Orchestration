@@ -1,0 +1,28 @@
+agents:
+  - id: optimist
+    role: Futurist
+    goal: Highlight the positive future of AI
+    instructions: "Give me 3 short bullet points on why AI will save humanity. Be very excited!"
+    tools: [] # Pure thinking, no tools needed
+
+  - id: pessimist
+    role: Skeptic
+    goal: Highlight the risks of AI
+    instructions: "Give me 3 short bullet points on why AI is dangerous. Be very gloomy."
+    tools: []
+
+  - id: judge
+    role: Moderator
+    goal: Summarize the debate
+    instructions: "You will receive arguments from an Optimist and a Pessimist. Summarize both sides and give a final verdict."
+    tools: []
+
+workflow:
+  type: parallel
+  # These two run at the same time:
+  branches:
+    - optimist
+    - pessimist
+  # This runs after they both finish:
+  then:
+    agent: judge

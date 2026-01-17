@@ -1,6 +1,7 @@
 import inspect
 from typing import Callable, Dict, Any, List
 from src.interface.database import db
+import os
 
 class ToolRegistry:
     """
@@ -81,25 +82,31 @@ def run_python_repl(code: str) -> str:
         return f"Python Execution Error: {e}"
 
 @ToolRegistry.register_tool("file_read")
-def read_file(filepath: str) -> str:
-    """Reads a file from the local filesystem."""
-    try:
-        with open(filepath, 'r') as f:
-            return f.read()
-    except Exception as e:
-        return f"Error reading file: {e}"
+def read_file(file_path: str = None, filename: str = None) -> str:
+    """
+    Reads a file from the filesystem.
+    Accepts either 'file_path' or 'filename' as arguments to be AI-friendly.
+    """
+    # 1. Figure out which argument the AI used
+    target_file = file_path or filename
+    
+    if not target_file:
+        return "❌ Error: You must provide a 'file_path' or 'filename'."
 
-@ToolRegistry.register_tool("save_memory")
-def save_knowledge(key: str, value: str) -> str:
-    """
-    Saves a fact to the database. 
-    Example: save_memory("project_deadline", "Friday 5PM")
-    """
+    # 2. Security Check (Prevent hacking parent directories)
+    if ".." in target_file or target_file.startswith("/"):
+        return "❌ Error: Access denied. You can only read files in the current directory."
+
+    # 3. Read the file
     try:
-        db.save_memory(key, value)
-        return f"✅ Saved to database: {key} = {value}"
+        if not os.path.exists(target_file):
+            return f"❌ Error: File '{target_file}' not found."
+            
+        with open(target_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+            return content[:2000]  # Limit length to prevent crashing the AI
     except Exception as e:
-        return f"❌ Database Error: {e}"
+        return f"❌ Error reading file: {str(e)}"
 
 @ToolRegistry.register_tool("read_memory")
 def read_knowledge(key: str) -> str:
@@ -109,13 +116,40 @@ def read_knowledge(key: str) -> str:
         return f"📖 Found: {val}"
     return f"🤷‍♂️ Nothing found for '{key}'"
 
+# In src/interface/tools.py
+
 @ToolRegistry.register_tool("recall_everything")
-def read_all_knowledge() -> str:
-    """Reads all stored memories. Use sparingly."""
-    all_mem = db.get_all_memory()
-    if not all_mem:
-        return "Memory is empty."
-    return str(all_mem)
+def read_all_knowledge(key: str = None, query: str = None) -> str:
+    """
+    Retrieves memories from the database. 
+    Can filter by 'key' or 'query' if provided.
+    """
+    # 1. Fetch all raw data
+    memories = db.get_all_memory() # Returns list of (id, key, value, timestamp)
+    
+    if not memories:
+        return "No memories found in database."
+
+    # 2. Format and Filter
+    results = []
+    search_term = key or query  # Agent might call it 'key' or 'query'
+    
+    for mem in memories:
+        # mem structure: (id, key, value, timestamp)
+        m_key = mem[1]
+        m_val = mem[2]
+        
+        # If agent asked for a specific key, filter for it
+        if search_term:
+            if search_term.lower() not in m_key.lower() and search_term.lower() not in m_val.lower():
+                continue # Skip this memory if it doesn't match
+        
+        results.append(f"{m_key}: {m_val}")
+
+    if not results:
+        return f"No memories found matching '{search_term}'."
+        
+    return "\n".join(results)
 
 
 # Simple test block
