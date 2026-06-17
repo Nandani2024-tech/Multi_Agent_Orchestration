@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  orchestrator:
+    build: .
+    volumes:
+      # This maps the 'data' folder in your PC to the '/app/data' folder in Docker
+      # This is why the AI will remember things even if you restart Docker.
+      - ./data:/app/data
+    env_file:
+      - .env
+    # tty (terminal) and stdin_open are required for the 'rich' console to look good
+    tty: true
+    stdin_open: true

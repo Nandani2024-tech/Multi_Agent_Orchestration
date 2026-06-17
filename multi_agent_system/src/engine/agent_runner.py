@@ -34,8 +34,8 @@ class AgentRunner:
         # 2. THINKING: Call the Brain
         ui.log_agent_start(agent.id, agent.role)
         
-        # We default to 'ollama/llama3.2' if the YAML model isn't set/valid
-        model_to_use = "ollama/llama3.2" 
+        # Use the model specified in the agent's YAML config
+        model_to_use = agent.model 
         
         response = llm_client.call(system_prompt, user_msg, model=model_to_use)
 

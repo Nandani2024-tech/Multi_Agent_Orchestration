@@ -1,10 +1,13 @@
 import sqlite3
+import os
 import json
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 class DatabaseHandler:
-    def __init__(self, db_path: str = "orchestrator.db"):
+    def __init__(self, db_path: Optional[str] = None):
+        if not db_path:
+            db_path = os.getenv("DB_PATH", "orchestrator.db")
         self.db_path = db_path
         self._init_db()
 
@@ -32,6 +35,10 @@ class DatabaseHandler:
                 details TEXT
             )
         ''')
+        
+        # Set compatibility pragmas for Docker volumes
+        cursor.execute('PRAGMA journal_mode=WAL')
+        cursor.execute('PRAGMA synchronous=NORMAL')
         
         conn.commit()
         conn.close()

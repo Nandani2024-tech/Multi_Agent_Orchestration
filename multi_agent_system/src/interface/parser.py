@@ -92,7 +92,7 @@ class ConfigParser:
             id=data['id'],
             role=role,
             goal=goal,
-            model=data.get('model', 'gpt-4-turbo'),
+            model=data.get('model', os.getenv("DEFAULT_MODEL", "groq/llama-3.3-70b-versatile")),
             tools=tools,
             instructions=instructions,
             sub_agents=data.get('sub_agents', [])

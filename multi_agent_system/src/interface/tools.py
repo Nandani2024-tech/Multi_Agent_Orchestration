@@ -116,6 +116,12 @@ def read_knowledge(key: str) -> str:
         return f"📖 Found: {val}"
     return f"🤷‍♂️ Nothing found for '{key}'"
 
+@ToolRegistry.register_tool("save_memory")
+def save_knowledge(key: str, value: str) -> str:
+    """Saves a fact to the database for future use."""
+    db.save_memory(key, str(value))
+    return f"✅ Successfully saved '{key}' to memory."
+
 # In src/interface/tools.py
 
 @ToolRegistry.register_tool("recall_everything")
